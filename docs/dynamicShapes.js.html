@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dynamicShapes.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dynamicShapes.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @class
+ * @classdesc This class brings together calculations of project business forms and rules.
+ */
+class DynamicShapes {
+    /**
+     * @constructs
+     * @description Initialize the variables "dots".
+     * @param {Array&lt;Point>} dots
+     */
+    constructor(dots) {
+        this.dots = dots;
+    }
+
+    /**
+     * @name DynamicShapes#addCanvas
+     * @description Public method that allows element canvas for application of class business rules.
+     * @params {HtmlCanvas Element} canvas.
+     */
+    addCanvas = canvas => {
+        this.canvas = canvas;
+        this.ctx = this.canvas.getContext("2d");
+    };
+
+    /**
+     * @name DynamicShapes#reset
+     * @description Public method, clean the Dots variable main shapes of class Parallelogram and Circle, return the clean Dots.
+     * @returns {Array}
+     */
+    reset = () => {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.parallelogram = undefined;
+        this.circle = undefined;
+        this.dots = [];
+        return this.dots;
+    };
+
+    /**
+     * @name DynamicShapes#addPoint
+     * @description Public method, add a new point
+     */
+    addPoint = e => {
+        if (this.dots.length &lt; 3) {
+            let rect = this.canvas.getBoundingClientRect();
+            let x = e.clientX - rect.left,
+                y = e.clientY - rect.top;
+            const dot = new Shape.dot.draw({
+                ctx: this.ctx,
+                center: new Point({ x, y }),
+                rad: 5.5,
+                color: Colors.RED,
+                order: this.dots.length + 1
+            });
+            this.dots.push(dot);
+        }
+        this.drawShapes();
+    };
+
+    /**
+     * @name DynamicShapes#reDraw
+     * @description Public method, it resets the position of a received point if its coordinates are changed, then redraws the existing shapes.
+     */
+    reDraw = dot => {
+        const index = this.dots.filter(item => item.order === dot.order);
+        const dotsTemp = this.dots;
+        this.dots = [];
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        dotsTemp.forEach((item, i) => {
+            if (i &lt; 3) {
+                let center = i === index ? dot.conter : item.center;
+                this.dots.push(
+                    new Shape.dot.draw({
+                        ctx: this.ctx,
+                        center: center,
+                        rad: 5.5,
+                        color: Colors.RED,
+                        order: this.dots.length
+                    })
+                );
+            }
+        });
+        this.drawShapes();
+    };
+
+    /**
+     * @name DynamicShapes#drawShapes
+     * @description Public method, draws shapes whenever necessary and there are the necessary three points.
+     */
+    drawShapes = () => {
+        if (this.dots.length === 3) {
+            this.circle = this.drawCircle();
+            this.dots.push(
+                new Shape.dot.draw({
+                    ctx: this.ctx,
+                    center: DiscoverLastDot({
+                        dots: this.dots,
+                        center: this.circle.center
+                    }).run(),
+                    rad: 5.5,
+                    color: Colors.RED,
+                    order: this.dots.length + 1
+                })
+            );
+            this.parallelogram = new Shape.parallelogram.draw({
+                ctx: this.ctx,
+                dots: this.dots,
+                color: Colors.BLUE
+            });
+        }
+    };
+
+    /**
+     * @name DynamicShapes#drawCircle
+     * @description Public method, draw the circle.
+     */
+    drawCircle = () => {
+        const CCpointAndRay = CircumCenter(this.dots).find();
+        let x = new Shape.dot.draw({
+            ctx: this.ctx,
+            center: CCpointAndRay.center,
+            rad: 5.5,
+            color: Colors.RED,
+            x: CCpointAndRay.center.x,
+            y: CCpointAndRay.center.y
+        });
+        return new Shape.circle.draw({
+            ctx: this.ctx,
+            center: CCpointAndRay.center,
+            rad: CCpointAndRay.rad,
+            color: Colors.YELLOW,
+            x: CCpointAndRay.center.x,
+            y: CCpointAndRay.center.y
+        });
+    };
+
+    /**
+     * @name DynamicShapes#drawParallelogram
+     * @description Public method, draw the parallelogram
+     */
+    drawParallelogram = () => {
+        if (!this.circle) {
+            this.circle;
+        }
+    };
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Colors.html">Colors</a></li><li><a href="module-Shape.html">Shape</a></li><li><a href="module-Utils.html">Utils</a></li></ul><h3>Classes</h3><ul><li><a href="CircumCenter.html">CircumCenter</a></li><li><a href="DiscoverLastDot.html">DiscoverLastDot</a></li><li><a href="DynamicShapes.html">DynamicShapes</a></li><li><a href="ParallelogramArea.html">ParallelogramArea</a></li><li><a href="Point.html">Point</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addChildrenElements">addChildrenElements</a></li><li><a href="global.html#addPoint">addPoint</a></li><li><a href="global.html#appendChild">appendChild</a></li><li><a href="global.html#createCanvas">createCanvas</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#handleOrUpdateShapesInfos">handleOrUpdateShapesInfos</a></li><li><a href="global.html#onMouseMove">onMouseMove</a></li><li><a href="global.html#onMouseUp">onMouseUp</a></li><li><a href="global.html#reDraw">reDraw</a></li><li><a href="global.html#reset">reset</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 14 2020 12:04:05 GMT-0300 (Brasilia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
